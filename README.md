@@ -257,13 +257,13 @@ It does not require:
 
 The goal is to solve one clear problem with a small full-stack application.
 
-## AI Assistance Disclosure
+## AI Assistance
 
-The README.md and design.md documentation were created with assistance from AI. 
+AI assistance was used to implement the LLM-related portion of PromptForge.
 
-The project itself, including its implementation, structure, and design decisions, was developed and reviewed as part of the project work.
+In particular, AI was used to help design and implement the integration with the Groq API, including the prompts and structured-response handling used to generate task-specific clarifying questions, refined prompts, and recommended AI/tool pipelines.
 
-AI assistance was used primarily to help organize, document, and communicate the project clearly.
+The rest of the application was developed and integrated as a small Flask web application using Python, SQLite, HTML, CSS, and JavaScript. AI-generated code was reviewed, adapted, tested, and integrated into the final project.
 
 ## Limitations
 
