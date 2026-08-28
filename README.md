@@ -1,4 +1,6 @@
-# PromptForge
+# PromptForge50
+#### Video Demo:  https://youtu.be/GPehpVvDmu0
+#### Description:
 
 PromptForge is a web application that helps a user turn a rough idea into a more useful AI task plan.
 
