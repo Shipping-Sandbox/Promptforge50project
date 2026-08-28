@@ -1,3 +1,4 @@
+# Groq API integration structure and error handling drafted with AI assistance, adapted and integrated by me.
 import json
 import os
 import urllib.error
