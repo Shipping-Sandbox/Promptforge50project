@@ -26,23 +26,93 @@ async function loadHistory() {
     const history = $('#history');
 
     if (!data.history?.length) {
-      history.innerHTML = '<p class="history-empty">Your saved prompts will appear here.</p>';
+      history.innerHTML = `
+        <p class="history-empty">
+          Your saved prompts will appear here.
+        </p>
+      `;
       return;
     }
 
     history.innerHTML = data.history.map(item => `
-      <button class="history-item" data-session-id="${item.id}">
-        <span>${escapeHtml(item.prompt)}</span>
-        <small>${escapeHtml(item.status)} · ${escapeHtml(item.created_at)}</small>
+      <button
+        class="history-item"
+        data-session-id="${item.id}"
+        type="button"
+      >
+
+        <span class="history-title">
+          ${escapeHtml(makeHistoryTitle(item.prompt))}
+        </span>
+
+        <span class="history-meta">
+          ${escapeHtml(item.created_at)}
+        </span>
+
+        <span class="history-arrow">
+          →
+        </span>
+
       </button>
     `).join('');
 
-    history.querySelectorAll('.history-item').forEach(button => {
-      button.addEventListener('click', () => openHistory(Number(button.dataset.sessionId)));
-    });
+    history
+      .querySelectorAll('.history-item')
+      .forEach(button => {
+
+        button.addEventListener('click', () => {
+          openHistory(
+            Number(button.dataset.sessionId)
+          );
+        });
+
+      });
+
   } catch (_) {
-    // History is useful but should not prevent the main prompt flow from working.
+
+    // History should never prevent the main
+    // PromptForge workflow from working.
+
   }
+}
+
+
+function makeHistoryTitle(prompt) {
+
+  const clean = String(
+    prompt || ''
+  )
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  if (!clean) {
+    return 'Untitled conversation';
+  }
+
+  /*
+    Keep the history list compact.
+
+    Prefer the first sentence when the prompt
+    contains one.
+  */
+
+  const firstSentence = clean.match(
+    /^(.+?[.!?])(?:\s|$)/
+  );
+
+  let title = firstSentence
+    ? firstSentence[1]
+    : clean;
+
+  /*
+    Avoid very long history rows.
+  */
+
+  if (title.length > 72) {
+    title = title.slice(0, 69).trimEnd() + '…';
+  }
+
+  return title;
 }
 
 async function openHistory(id) {
