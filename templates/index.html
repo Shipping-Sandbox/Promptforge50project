@@ -6,237 +6,868 @@
   <title>PromptForge · Turn rough ideas into better AI workflows</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+
 <body>
+
   <main class="shell">
+
+    <!-- -------------------------------------------------
+         HERO
+    -------------------------------------------------- -->
+
     <header class="hero">
+
       <div class="eyebrow">PROMPTFORGE</div>
-      <h1>Start with a rough idea.<br>Leave with a precise AI plan.</h1>
-      <p>Give PromptForge your actual task. When an LLM is connected, it asks only the questions that matter for that task, then builds a tailored prompt and workflow.</p>
+
+      <h1>
+        Start with a rough idea.<br>
+        Leave with a precise AI plan.
+      </h1>
+
+      <p>
+        Give PromptForge your actual task. When an LLM is connected,
+        it asks only the questions that matter for that task,
+        then builds a tailored prompt and workflow.
+      </p>
+
     </header>
 
-    <section class="card" id="start-card">
-      <label for="prompt">What are you trying to accomplish?</label>
-      <textarea id="prompt" rows="7" placeholder="Example: Compare these three universities for a master's in computer science and recommend the best one for my budget and career goals…"></textarea>
+
+    <!-- -------------------------------------------------
+         START / PROMPT
+    -------------------------------------------------- -->
+
+    <section class="card start-card" id="start-card">
+
+      <label for="prompt">
+        What are you trying to accomplish?
+      </label>
+
+      <textarea
+        id="prompt"
+        rows="7"
+        placeholder="Example: Compare these three universities for a master's in computer science and recommend the best one for my budget and career goals…"
+      ></textarea>
+
       <div class="start-actions">
-        <button id="start-btn">Analyze my request <span>→</span></button>
-        <button id="demo-btn" class="demo-button" type="button">See demo <span>↗</span></button>
+
+        <button id="start-btn" type="button">
+          Analyze my request
+          <span>→</span>
+        </button>
+
+        <button
+          id="demo-btn"
+          class="demo-button"
+          type="button"
+        >
+          See demo
+          <span>↗</span>
+        </button>
+
       </div>
-      <p class="status" id="start-status"></p>
+
+      <p
+        class="status"
+        id="start-status"
+      ></p>
+
     </section>
 
-    <section class="card hidden" id="questions-card">
+
+    <!-- -------------------------------------------------
+         CLARIFYING QUESTIONS
+    -------------------------------------------------- -->
+
+    <section
+      class="card hidden"
+      id="questions-card"
+    >
+
       <div class="section-heading">
-        <span class="step">01</span>
+
+        <span class="step">
+          01
+        </span>
+
         <div>
-          <h2>Help me understand your goal.</h2>
-          <p>These choices are generated from your specific request—not a fixed questionnaire.</p>
+
+          <h2>
+            Help me understand your goal.
+          </h2>
+
+          <p>
+            These choices are generated from your specific request—not a fixed questionnaire.
+          </p>
+
         </div>
+
       </div>
+
       <form id="questions-form"></form>
-      <button id="finish-btn">Build my AI plan <span>→</span></button>
-      <p class="status" id="finish-status"></p>
+
+      <button
+        id="finish-btn"
+        type="button"
+      >
+        Build my AI plan
+        <span>→</span>
+      </button>
+
+      <p
+        class="status"
+        id="finish-status"
+      ></p>
+
     </section>
 
-    <section class="card hidden" id="api-card">
+
+    <!-- -------------------------------------------------
+         API STATE
+    -------------------------------------------------- -->
+
+    <section
+      class="card hidden"
+      id="api-card"
+    >
+
       <div class="connection-state">
+
         <div class="state-dot"></div>
+
         <div>
-          <h2>LLM connection required</h2>
-          <p id="api-message">PromptForge is ready, but the LLM API has not been connected yet.</p>
-          <p class="muted">The clarifying questions and refined prompt with tools pipeline will be available in a few months.</p>
+
+          <h2>
+            LLM connection required
+          </h2>
+
+          <p id="api-message">
+            PromptForge is ready, but the LLM API has not been connected yet.
+          </p>
+
+          <p class="muted">
+            The clarifying questions and refined prompt with tools
+            pipeline will be available in a few months.
+          </p>
+
         </div>
+
       </div>
+
     </section>
 
-    <section class="card" id="history-card">
-      <div class="section-heading">
-        <span class="step">03</span>
-        <div>
-          <h2>Your history.</h2>
-          <p>Your prompts, questions, and results are saved locally in SQLite.</p>
-        </div>
-      </div>
-      <div id="history"><p class="history-empty">Your saved prompts will appear here.</p></div>
-    </section>
 
-    <section class="card hidden" id="result-card">
+    <!-- -------------------------------------------------
+         CURRENT RESULT
+         IMPORTANT: RESULT IS BEFORE HISTORY
+    -------------------------------------------------- -->
+
+    <section
+      class="card hidden result-card"
+      id="result-card"
+    >
+
       <div class="section-heading">
-        <span class="step">02</span>
+
+        <span class="step">
+          02
+        </span>
+
         <div>
-          <h2>Your AI execution plan.</h2>
-          <p>Everything below is generated specifically for the request above.</p>
+
+          <h2>
+            Your AI execution plan.
+          </h2>
+
+          <p>
+            Everything below is generated specifically for the request above.
+          </p>
+
         </div>
+
       </div>
+
       <div id="result"></div>
-      <button class="secondary" id="restart-btn">Start another prompt</button>
+
+      <button
+        class="secondary"
+        id="restart-btn"
+        type="button"
+      >
+        Start another prompt
+      </button>
+
     </section>
+
+
+    <!-- -------------------------------------------------
+         HISTORY
+         HISTORY IS NOW BELOW THE CURRENT WORKSPACE
+    -------------------------------------------------- -->
+
+    <section
+      class="history-section"
+      id="history-card"
+    >
+
+      <div class="history-heading">
+
+        <div>
+
+          <div class="history-kicker">
+            HISTORY
+          </div>
+
+          <h2>
+            Your conversations.
+          </h2>
+
+          <p>
+            Your prompts and results are saved locally.
+          </p>
+
+        </div>
+
+      </div>
+
+      <div
+        id="history"
+        class="history-list"
+      >
+
+        <p class="history-empty">
+          Your saved prompts will appear here.
+        </p>
+
+      </div>
+
+    </section>
+
   </main>
 
-  <button class="floating-back hidden" id="back-btn" type="button" aria-label="Go back">
-    <span class="back-arrow">←</span>
-    <span>Back</span>
+
+  <!-- -------------------------------------------------
+       FLOATING BACK
+       Hidden automatically on the main screen.
+    -------------------------------------------------- -->
+
+  <button
+    class="floating-back hidden"
+    id="back-btn"
+    type="button"
+    aria-label="Go back"
+  >
+
+    <span class="back-arrow">
+      ←
+    </span>
+
+    <span>
+      Back
+    </span>
+
   </button>
 
-  <!-- Demo -->
-  <div class="demo-modal hidden" id="demo-modal" role="dialog" aria-modal="true" aria-labelledby="demo-title">
-    <div class="demo-backdrop" data-close-demo></div>
+
+  <!-- -------------------------------------------------
+       INTERACTIVE DEMO
+    -------------------------------------------------- -->
+
+  <div
+    class="demo-modal hidden"
+    id="demo-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="demo-title"
+  >
+
+    <div
+      class="demo-backdrop"
+      data-close-demo
+    ></div>
+
+
     <section class="demo-panel">
-      <button class="demo-close" id="demo-close" type="button" aria-label="Close demo">×</button>
+
+      <button
+        class="demo-close"
+        id="demo-close"
+        type="button"
+        aria-label="Close demo"
+      >
+        ×
+      </button>
+
 
       <div class="demo-head">
+
         <div>
-          <div class="eyebrow">INTERACTIVE DEMO</div>
-          <h2 id="demo-title">From rough idea to a build-ready AI workflow.</h2>
-          <p>See how PromptForge could break one real request into the right tools, prompts, outputs, and hand-offs.</p>
+
+          <div class="eyebrow">
+            INTERACTIVE DEMO
+          </div>
+
+          <h2 id="demo-title">
+            From rough idea to a build-ready AI workflow.
+          </h2>
+
+          <p>
+            See how PromptForge could break one real request
+            into the right tools, prompts, outputs, and hand-offs.
+          </p>
+
         </div>
-        <div class="demo-badge">Example task · PDF → Podcast</div>
+
+        <div class="demo-badge">
+          Example task · PDF → Podcast
+        </div>
+
       </div>
 
-      <div class="demo-section">
-        <div class="demo-label">ROUGH PROMPT</div>
-        <div class="demo-rough-prompt">Build me a website that lets people upload PDFs and turn them into podcasts. It should understand the PDF, make a good conversation, create audio, and let people listen and download it.</div>
-      </div>
+
+      <!-- ROUGH PROMPT -->
 
       <div class="demo-section">
-        <div class="demo-label">CLARIFYING QUESTIONS</div>
+
+        <div class="demo-label">
+          ROUGH PROMPT
+        </div>
+
+        <div class="demo-rough-prompt">
+          Build me a website that lets people upload PDFs and turn them into podcasts. It should understand the PDF, make a good conversation, create audio, and let people listen and download it.
+        </div>
+
+      </div>
+
+
+      <!-- QUESTIONS -->
+
+      <div class="demo-section">
+
+        <div class="demo-label">
+          CLARIFYING QUESTIONS
+        </div>
+
         <div class="demo-qa-grid">
+
           <article class="demo-question">
-            <div class="demo-q-number">01</div>
-            <h3>What should the podcast feel like?</h3>
-            <div class="demo-answer"><span>✓</span> Two hosts having a natural, curious conversation.</div>
+
+            <div class="demo-q-number">
+              01
+            </div>
+
+            <h3>
+              What should the podcast feel like?
+            </h3>
+
+            <div class="demo-answer">
+              <span>✓</span>
+              Two hosts having a natural, curious conversation.
+            </div>
+
           </article>
+
+
           <article class="demo-question">
-            <div class="demo-q-number">02</div>
-            <h3>How should long PDFs be handled?</h3>
-            <div class="demo-answer"><span>✓</span> Preserve the whole document, but create chapters so listeners can jump around.</div>
+
+            <div class="demo-q-number">
+              02
+            </div>
+
+            <h3>
+              How should long PDFs be handled?
+            </h3>
+
+            <div class="demo-answer">
+              <span>✓</span>
+              Preserve the whole document, but create chapters so listeners can jump around.
+            </div>
+
           </article>
+
+
           <article class="demo-question">
-            <div class="demo-q-number">03</div>
-            <h3>What should users receive at the end?</h3>
-            <div class="demo-answer"><span>✓</span> Streaming audio, chapter list, transcript, and MP3 download.</div>
+
+            <div class="demo-q-number">
+              03
+            </div>
+
+            <h3>
+              What should users receive at the end?
+            </h3>
+
+            <div class="demo-answer">
+              <span>✓</span>
+              Streaming audio, chapter list, transcript, and MP3 download.
+            </div>
+
           </article>
+
+
           <article class="demo-question">
-            <div class="demo-q-number">04</div>
-            <h3>How much control should the creator have?</h3>
-            <div class="demo-answer"><span>✓</span> Let them choose length, voice style, language, and episode title.</div>
+
+            <div class="demo-q-number">
+              04
+            </div>
+
+            <h3>
+              How much control should the creator have?
+            </h3>
+
+            <div class="demo-answer">
+              <span>✓</span>
+              Let them choose length, voice style, language, and episode title.
+            </div>
+
           </article>
+
         </div>
+
       </div>
 
+
+      <!-- PIPELINE -->
+
       <div class="demo-section">
-        <div class="demo-label">WHAT PROMPTFORGE WOULD BUILD</div>
+
+        <div class="demo-label">
+          WHAT PROMPTFORGE WOULD BUILD
+        </div>
+
+
         <div class="demo-layout">
+
+
+          <!-- LEFT EXPLANATIONS -->
+
           <aside class="demo-side demo-side-left">
+
             <div class="side-note left-note one">
+
               <span class="side-line"></span>
-              <strong>Extract the source</strong>
-              <p>Turn the uploaded PDF into clean, page-aware text before asking a model to reason over it.</p>
+
+              <strong>
+                Extract the source
+              </strong>
+
+              <p>
+                Turn the uploaded PDF into clean, page-aware text before asking a model to reason over it.
+              </p>
+
             </div>
+
+
             <div class="side-note left-note two">
+
               <span class="side-line"></span>
-              <strong>Design the episode</strong>
-              <p>Convert the source into a structured two-host conversation without inventing claims.</p>
+
+              <strong>
+                Design the episode
+              </strong>
+
+              <p>
+                Convert the source into a structured two-host conversation without inventing claims.
+              </p>
+
             </div>
+
+
             <div class="side-note left-note three">
+
               <span class="side-line"></span>
-              <strong>Generate speech</strong>
-              <p>Produce consistent voices for each speaker and return audio files for every chapter.</p>
+
+              <strong>
+                Generate speech
+              </strong>
+
+              <p>
+                Produce consistent voices for each speaker and return audio files for every chapter.
+              </p>
+
             </div>
+
           </aside>
 
-          <div class="pipeline" id="demo-pipeline">
-            <button class="tool-node active" data-tool="pymupdf" type="button">
-              <span class="tool-icon"><img src="https://cdn.simpleicons.org/python" alt="Python"></span>
-              <span class="tool-node-copy"><b>1 · PyMuPDF</b><small>PDF extraction</small></span>
-              <span class="tool-chevron">→</span>
+
+          <!-- PIPELINE -->
+
+          <div
+            class="pipeline"
+            id="demo-pipeline"
+          >
+
+            <button
+              class="tool-node active"
+              data-tool="pymupdf"
+              type="button"
+            >
+
+              <span class="tool-icon">
+                <img
+                  src="https://cdn.simpleicons.org/python"
+                  alt="Python"
+                >
+              </span>
+
+              <span class="tool-node-copy">
+
+                <b>
+                  1 · PyMuPDF
+                </b>
+
+                <small>
+                  PDF extraction
+                </small>
+
+              </span>
+
+              <span class="tool-chevron">
+                →
+              </span>
+
             </button>
 
-            <div class="pipeline-connector"><span></span></div>
 
-            <button class="tool-node" data-tool="claude" type="button">
-              <span class="tool-icon"><img src="https://cdn.simpleicons.org/anthropic" alt="Anthropic"></span>
-              <span class="tool-node-copy"><b>2 · Claude</b><small>Podcast script + structure</small></span>
-              <span class="tool-chevron">→</span>
+            <div class="pipeline-connector">
+              <span></span>
+            </div>
+
+
+            <button
+              class="tool-node"
+              data-tool="claude"
+              type="button"
+            >
+
+              <span class="tool-icon">
+                <img
+                  src="https://cdn.simpleicons.org/anthropic"
+                  alt="Anthropic"
+                >
+              </span>
+
+              <span class="tool-node-copy">
+
+                <b>
+                  2 · Claude
+                </b>
+
+                <small>
+                  Podcast script + structure
+                </small>
+
+              </span>
+
+              <span class="tool-chevron">
+                →
+              </span>
+
             </button>
 
-            <div class="pipeline-connector"><span></span></div>
 
-            <button class="tool-node" data-tool="elevenlabs" type="button">
-              <span class="tool-icon"><img src="https://cdn.simpleicons.org/elevenlabs" alt="ElevenLabs"></span>
-              <span class="tool-node-copy"><b>3 · ElevenLabs</b><small>Two-speaker voice generation</small></span>
-              <span class="tool-chevron">→</span>
+            <div class="pipeline-connector">
+              <span></span>
+            </div>
+
+
+            <button
+              class="tool-node"
+              data-tool="elevenlabs"
+              type="button"
+            >
+
+              <span class="tool-icon">
+
+                <img
+                  src="https://cdn.simpleicons.org/elevenlabs"
+                  alt="ElevenLabs"
+                >
+
+              </span>
+
+              <span class="tool-node-copy">
+
+                <b>
+                  3 · ElevenLabs
+                </b>
+
+                <small>
+                  Two-speaker voice generation
+                </small>
+
+              </span>
+
+              <span class="tool-chevron">
+                →
+              </span>
+
             </button>
 
-            <div class="pipeline-connector"><span></span></div>
 
-            <button class="tool-node" data-tool="ffmpeg" type="button">
-              <span class="tool-icon"><img src="https://cdn.simpleicons.org/ffmpeg" alt="FFmpeg"></span>
-              <span class="tool-node-copy"><b>4 · FFmpeg</b><small>Assemble + normalize audio</small></span>
-              <span class="tool-chevron">→</span>
+            <div class="pipeline-connector">
+              <span></span>
+            </div>
+
+
+            <button
+              class="tool-node"
+              data-tool="ffmpeg"
+              type="button"
+            >
+
+              <span class="tool-icon">
+
+                <img
+                  src="https://cdn.simpleicons.org/ffmpeg"
+                  alt="FFmpeg"
+                >
+
+              </span>
+
+              <span class="tool-node-copy">
+
+                <b>
+                  4 · FFmpeg
+                </b>
+
+                <small>
+                  Assemble + normalize audio
+                </small>
+
+              </span>
+
+              <span class="tool-chevron">
+                →
+              </span>
+
             </button>
 
-            <div class="pipeline-connector"><span></span></div>
 
-            <button class="tool-node" data-tool="supabase" type="button">
-              <span class="tool-icon"><img src="https://cdn.simpleicons.org/supabase" alt="Supabase"></span>
-              <span class="tool-node-copy"><b>5 · Supabase</b><small>Store audio + metadata</small></span>
-              <span class="tool-chevron">→</span>
+            <div class="pipeline-connector">
+              <span></span>
+            </div>
+
+
+            <button
+              class="tool-node"
+              data-tool="supabase"
+              type="button"
+            >
+
+              <span class="tool-icon">
+
+                <img
+                  src="https://cdn.simpleicons.org/supabase"
+                  alt="Supabase"
+                >
+
+              </span>
+
+              <span class="tool-node-copy">
+
+                <b>
+                  5 · Supabase
+                </b>
+
+                <small>
+                  Store audio + metadata
+                </small>
+
+              </span>
+
+              <span class="tool-chevron">
+                →
+              </span>
+
             </button>
 
-            <div class="pipeline-connector"><span></span></div>
 
-            <button class="tool-node" data-tool="vercel" type="button">
-              <span class="tool-icon"><img src="https://cdn.simpleicons.org/vercel" alt="Vercel"></span>
-              <span class="tool-node-copy"><b>6 · Vercel</b><small>Deploy the web experience</small></span>
-              <span class="tool-chevron">→</span>
+            <div class="pipeline-connector">
+              <span></span>
+            </div>
+
+
+            <button
+              class="tool-node"
+              data-tool="vercel"
+              type="button"
+            >
+
+              <span class="tool-icon">
+
+                <img
+                  src="https://cdn.simpleicons.org/vercel"
+                  alt="Vercel"
+                >
+
+              </span>
+
+              <span class="tool-node-copy">
+
+                <b>
+                  6 · Vercel
+                </b>
+
+                <small>
+                  Deploy the web experience
+                </small>
+
+              </span>
+
+              <span class="tool-chevron">
+                →
+              </span>
+
             </button>
+
           </div>
+
+
+          <!-- RIGHT EXPLANATIONS -->
 
           <aside class="demo-side demo-side-right">
+
             <div class="side-note right-note one">
+
               <span class="side-line"></span>
-              <strong>Build the audio layer</strong>
-              <p>Join chapter clips, normalize loudness, and create one clean downloadable episode.</p>
+
+              <strong>
+                Build the audio layer
+              </strong>
+
+              <p>
+                Join chapter clips, normalize loudness, and create one clean downloadable episode.
+              </p>
+
             </div>
+
+
             <div class="side-note right-note two">
+
               <span class="side-line"></span>
-              <strong>Save the result</strong>
-              <p>Keep the source, generated assets, chapters, and transcript linked to one episode.</p>
+
+              <strong>
+                Save the result
+              </strong>
+
+              <p>
+                Keep the source, generated assets, chapters, and transcript linked to one episode.
+              </p>
+
             </div>
+
+
             <div class="side-note right-note three">
+
               <span class="side-line"></span>
-              <strong>Ship the product</strong>
-              <p>Put the upload → processing → playback experience online with a simple production path.</p>
+
+              <strong>
+                Ship the product
+              </strong>
+
+              <p>
+                Put the upload → processing → playback experience online with a simple production path.
+              </p>
+
             </div>
+
           </aside>
+
         </div>
 
-        <div class="tool-detail" id="tool-detail" aria-live="polite">
-          <div class="tool-detail-icon" id="tool-detail-icon"></div>
+
+        <!-- TOOL DETAIL -->
+
+        <div
+          class="tool-detail"
+          id="tool-detail"
+          aria-live="polite"
+        >
+
+          <div
+            class="tool-detail-icon"
+            id="tool-detail-icon"
+          ></div>
+
           <div class="tool-detail-body">
-            <div class="tool-detail-topline"><span class="demo-label">SELECTED TOOL</span><a id="tool-link" href="#" target="_blank" rel="noopener">Open tool ↗</a></div>
-            <h3 id="tool-detail-title">PyMuPDF</h3>
+
+            <div class="tool-detail-topline">
+
+              <span class="demo-label">
+                SELECTED TOOL
+              </span>
+
+              <a
+                id="tool-link"
+                href="#"
+                target="_blank"
+                rel="noopener"
+              >
+                Open tool ↗
+              </a>
+
+            </div>
+
+            <h3 id="tool-detail-title">
+              PyMuPDF
+            </h3>
+
             <p id="tool-detail-purpose"></p>
-            <div class="instruction-label">PROMPT / INSTRUCTION</div>
+
+            <div class="instruction-label">
+              PROMPT / INSTRUCTION
+            </div>
+
             <pre id="tool-detail-instruction"></pre>
+
           </div>
+
         </div>
+
       </div>
+
+
+      <!-- REFINED PROMPT -->
 
       <div class="demo-section">
-        <div class="demo-label">REFINED PROMPT</div>
-        <div class="demo-refined">
-          Build a responsive web app that accepts a user PDF, extracts its text with page boundaries preserved, and turns the document into a chaptered podcast. Use a two-host conversation format with natural back-and-forth, factual fidelity to the source, and no invented claims. Let the user choose episode length, language, voice style, and title. Generate a transcript alongside the audio. Create each chapter as separate audio, merge and loudness-normalize the final episode, store the source and generated assets with episode metadata, and provide streaming plus MP3 download. Keep the processing pipeline asynchronous, show progress by stage, and make every generated artifact traceable back to the source pages.
+
+        <div class="demo-label">
+          REFINED PROMPT
         </div>
+
+        <div class="demo-refined">
+
+          Build a responsive web app that accepts a user PDF, extracts its text with page boundaries preserved, and turns the document into a chaptered podcast. Use a two-host conversation format with natural back-and-forth, factual fidelity to the source, and no invented claims. Let the user choose episode length, language, voice style, and title. Generate a transcript alongside the audio. Create each chapter as separate audio, merge and loudness-normalize the final episode, store the source and generated assets with episode metadata, and provide streaming plus MP3 download. Keep the processing pipeline asynchronous, show progress by stage, and make every generated artifact traceable back to the source pages.
+
+        </div>
+
       </div>
+
+
+      <!-- DEMO FOOTER -->
 
       <div class="demo-footer">
-        <span>Click any tool in the pipeline to inspect the exact instruction and open the tool.</span>
-        <button class="secondary" id="demo-close-bottom" type="button">Close demo</button>
+
+        <span>
+          Click any tool in the pipeline to inspect the exact instruction and open the tool.
+        </span>
+
+        <button
+          class="secondary"
+          id="demo-close-bottom"
+          type="button"
+        >
+          Close demo
+        </button>
+
       </div>
+
     </section>
+
   </div>
 
+
   <script src="{{ url_for('static', filename='app.js') }}"></script>
+
 </body>
 </html>
