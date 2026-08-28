@@ -471,19 +471,18 @@ Rules:
         }
 
     except Exception as exc:
+        print(
+            f"Final-plan error: {exc}"
+        )
 
-    print(
-        f"Final-plan error: {exc}"
-    )
-
-    return {
-        "available": False,
-        "message": (
-            f"Final plan error: {exc}"
-        ),
-        "verdict": None,
-        "refined_prompt": None,
-        "pipeline": [],
-        "suggested_models": [],
-        "warnings": [],
-    }
+        return {
+            "available": False,
+            "message": (
+                f"Final plan error: {exc}"
+            ),
+            "verdict": None,
+            "refined_prompt": None,
+            "pipeline": [],
+            "suggested_models": [],
+            "warnings": [],
+        }
