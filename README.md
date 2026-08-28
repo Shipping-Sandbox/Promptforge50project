@@ -259,7 +259,11 @@ The goal is to solve one clear problem with a small full-stack application.
 
 ## AI Assistance Disclosure
 
-The README.md and design.md documentation were created with assistance from AI. The project itself, including its implementation, structure, and design decisions, was developed and reviewed as part of the project work. AI assistance was used primarily to help organize, document, and communicate the project clearly.
+The README.md and design.md documentation were created with assistance from AI. 
+
+The project itself, including its implementation, structure, and design decisions, was developed and reviewed as part of the project work.
+
+AI assistance was used primarily to help organize, document, and communicate the project clearly.
 
 ## Limitations
 
