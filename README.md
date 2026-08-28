@@ -6,7 +6,7 @@ The user starts with a natural-language request. PromptForge is designed to ask 
 
 ## Live Demo
 
-**https://promptforge50-project.onrender.com/**
+**https://promptforge50project.onrender.com**
 
 The deployed application currently demonstrates the core interface and workflow. The LLM-powered clarification and refinement layer is designed so it can be enabled through a backend API when the project is connected to a model provider.
 
