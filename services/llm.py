@@ -3,19 +3,24 @@ import os
 import urllib.error
 import urllib.request
 
-# Groq uses an OpenAI-compatible API.
+
+# ---------------------------------------------------------
+# LLM CONFIGURATION
+# ---------------------------------------------------------
+
+# Groq provides an OpenAI-compatible API.
 BASE_URL = os.getenv(
     "LLM_BASE_URL",
     "https://api.groq.com/openai/v1"
 ).rstrip("/")
 
-# Accept either our app's variable or the conventional Groq variable.
+# Accept either variable name.
 API_KEY = (
     os.getenv("LLM_API_KEY", "").strip()
     or os.getenv("GROQ_API_KEY", "").strip()
 )
 
-# Strong general-purpose reasoning model available through Groq.
+# Default model.
 MODEL = os.getenv(
     "LLM_MODEL",
     "openai/gpt-oss-120b"
@@ -26,9 +31,15 @@ def llm_configured():
     return bool(API_KEY)
 
 
+# ---------------------------------------------------------
+# CORE LLM REQUEST
+# ---------------------------------------------------------
+
 def _call_llm(system_prompt, user_prompt):
     if not llm_configured():
-        raise RuntimeError("Groq API key is not configured.")
+        raise RuntimeError(
+            "Groq API key is not configured."
+        )
 
     payload = {
         "model": MODEL,
@@ -54,12 +65,18 @@ def _call_llm(system_prompt, user_prompt):
         headers={
             "Authorization": f"Bearer {API_KEY}",
             "Content-Type": "application/json",
+            "Accept": "application/json",
+            "User-Agent": "PromptForge/1.0",
         },
         method="POST",
     )
 
     try:
-        with urllib.request.urlopen(request, timeout=60) as response:
+        with urllib.request.urlopen(
+            request,
+            timeout=60
+        ) as response:
+
             body = json.loads(
                 response.read().decode("utf-8")
             )
@@ -69,39 +86,74 @@ def _call_llm(system_prompt, user_prompt):
             "utf-8",
             errors="replace"
         )
+
+        # Print the real provider response into Render logs.
+        print(
+            f"Groq HTTP {exc.code}: {detail}"
+        )
+
         raise RuntimeError(
             f"Groq returned HTTP {exc.code}: {detail}"
         ) from exc
 
     except urllib.error.URLError as exc:
+        print(
+            f"Groq connection error: {exc}"
+        )
+
         raise RuntimeError(
             f"Could not reach Groq: {exc.reason}"
         ) from exc
 
     except TimeoutError as exc:
+        print(
+            "Groq request timed out."
+        )
+
         raise RuntimeError(
             "The Groq request timed out."
         ) from exc
 
     try:
         content = body["choices"][0]["message"]["content"]
-    except (KeyError, IndexError, TypeError) as exc:
+
+    except (
+        KeyError,
+        IndexError,
+        TypeError
+    ) as exc:
+
+        print(
+            f"Unexpected Groq response: {body}"
+        )
+
         raise RuntimeError(
             "Groq returned an unexpected response."
         ) from exc
 
     try:
         return json.loads(content)
+
     except json.JSONDecodeError as exc:
+
+        print(
+            f"Groq returned invalid JSON: {content}"
+        )
+
         raise RuntimeError(
             "Groq returned invalid JSON."
         ) from exc
 
 
+# ---------------------------------------------------------
+# QUESTION NORMALIZATION
+# ---------------------------------------------------------
+
 def _normalize_questions(questions):
     normalized = []
 
     for index, item in enumerate(questions):
+
         if not isinstance(item, dict):
             continue
 
@@ -112,9 +164,15 @@ def _normalize_questions(questions):
         if not question:
             continue
 
-        options = item.get("options", [])
+        options = item.get(
+            "options",
+            []
+        )
 
-        if not isinstance(options, list):
+        if not isinstance(
+            options,
+            list
+        ):
             options = []
 
         options = [
@@ -125,20 +183,33 @@ def _normalize_questions(questions):
 
         normalized.append({
             "id": str(
-                item.get("id") or f"q{index + 1}"
+                item.get(
+                    "id",
+                    f"q{index + 1}"
+                )
             ),
             "question": question,
             "hint": str(
-                item.get("hint", "")
+                item.get(
+                    "hint",
+                    ""
+                )
             ).strip(),
             "options": options[:6],
             "multi": bool(
-                item.get("multi", False)
+                item.get(
+                    "multi",
+                    False
+                )
             ),
         })
 
     return normalized
 
+
+# ---------------------------------------------------------
+# CLARIFYING QUESTIONS
+# ---------------------------------------------------------
 
 def generate_clarifying_questions(prompt):
 
@@ -171,9 +242,11 @@ Do not ask about tone, audience, budget, deadline, format,
 technology, or anything else unless it actually matters to
 THIS specific request.
 
-The questions must be tailored to the exact task.
+Every question must be based on the user's exact request.
 
-Return JSON only in this format:
+Do not reuse a generic questionnaire.
+
+Return JSON only:
 
 {
   "questions": [
@@ -184,7 +257,7 @@ Return JSON only in this format:
       "options": [
         "...",
         "...",
-        "... "
+        "..."
       ],
       "multi": false
     }
@@ -194,14 +267,15 @@ Return JSON only in this format:
 Rules:
 - Generate 2 to 5 questions.
 - Each question must have 3 to 6 useful options.
-- Options must be specific to the user's request.
-- Avoid repeating information already present.
+- Options must be specific to the user's task.
+- Do not repeat information already present.
 - Do NOT add an "Other" option.
-- PromptForge adds "Other" automatically as the final option.
-- Never reuse a generic questionnaire.
+- PromptForge adds "Other" automatically.
+- Avoid generic questions.
 """.strip()
 
     try:
+
         result = _call_llm(
             system,
             f"""
@@ -209,20 +283,23 @@ EXACT USER REQUEST:
 
 {prompt}
 
-Now identify only the missing decisions that genuinely
-matter for completing this specific request.
+Identify only the missing decisions that genuinely
+matter for completing this exact task.
 """
         )
 
         questions = _normalize_questions(
-            result.get("questions", [])
+            result.get(
+                "questions",
+                []
+            )
         )
 
         if (
             2 <= len(questions) <= 5
             and all(
-                len(q["options"]) >= 3
-                for q in questions
+                len(question["options"]) >= 3
+                for question in questions
             )
         ):
             return {
@@ -240,7 +317,10 @@ matter for completing this specific request.
         }
 
     except Exception as exc:
-        print(f"Clarifying-question error: {exc}")
+
+        print(
+            f"Clarifying-question error: {exc}"
+        )
 
         return {
             "available": False,
@@ -251,6 +331,10 @@ matter for completing this specific request.
             "questions": [],
         }
 
+
+# ---------------------------------------------------------
+# FINAL PLAN
+# ---------------------------------------------------------
 
 def generate_final_plan(
     prompt,
@@ -275,29 +359,30 @@ def generate_final_plan(
     system = """
 You are PromptForge's final task-planning engine.
 
-You are given:
+You receive:
 1. the user's exact original request,
 2. the questions generated specifically for that request,
 3. the user's answers.
 
-Your entire response must be specific to THIS request.
+Your response MUST be specific to this exact task.
 
 Do not produce generic AI advice.
 
 Determine:
 - what the user is actually trying to achieve,
-- what information matters,
+- what the user's answers imply,
 - what the best execution strategy is,
-- which tools or AI capabilities are actually needed,
+- which AI capabilities are genuinely needed,
+- which tools are genuinely useful,
 - which tools are unnecessary,
 - what should be verified,
-- and what the final prompt should say.
+- and what the final executable prompt should say.
 
 Do not recommend tools merely because they are popular.
 
-Every recommended step must have a clear purpose for THIS task.
+Every pipeline step must have a clear reason for existing.
 
-Use the user's answers as requirements.
+Use the user's answers as actual requirements.
 
 Return JSON only:
 
@@ -326,25 +411,34 @@ Return JSON only:
 }
 
 Rules:
-- pipeline: 1 to 6 steps
-- only include genuinely useful steps
-- suggested_models must be relevant to this task
-- warnings must be specific to this task
-- refined_prompt must be directly executable by another AI
-- use concrete details from the original request
-- do not use vague phrases such as "your project"
-  when a specific noun is available
+- pipeline must contain 1 to 6 steps.
+- Include only genuinely useful steps.
+- suggested_models must be relevant to this exact task.
+- warnings must be specific to this task.
+- refined_prompt must be directly usable by another AI.
+- Use concrete details from the original request.
+- Use the user's answers.
+- Never fall back to generic advice.
 """.strip()
+
+    try:
+
+        clarifying_questions = json.loads(
+            questions_json or "[]"
+        )
+
+    except json.JSONDecodeError:
+
+        clarifying_questions = []
 
     user_payload = {
         "original_prompt": prompt,
-        "clarifying_questions": json.loads(
-            questions_json or "[]"
-        ),
+        "clarifying_questions": clarifying_questions,
         "answers": answers,
     }
 
     try:
+
         result = _call_llm(
             system,
             json.dumps(
@@ -377,7 +471,10 @@ Rules:
         }
 
     except Exception as exc:
-        print(f"Final-plan error: {exc}")
+
+        print(
+            f"Final-plan error: {exc}"
+        )
 
         return {
             "available": False,
